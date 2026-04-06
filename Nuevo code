@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="VP Tracker"/>
+  <meta name="theme-color" content="#07090F"/>
+  <title>VP Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#07090F;color:#EDF1FA;font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+    :root{
+      --bg:#07090F;--surface:#0D1120;--card:#111827;--border:#1C2640;
+      --accent:#00D4B8;--gold:#F5C518;--purple:#8B5CF6;
+      --text:#EDF1FA;--muted:#5A6A8A;--mutedL:#8A9BBF;
+      --p1:#00D4B8;--p2:#F5C518;--p3:#8B5CF6
+    }
+    input,textarea,select{background:#090D18;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:9px 13px;width:100%;outline:none}
+    textarea{resize:vertical;min-height:64px}
+    label.lbl{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;letter-spacing:.8px;text-transform:uppercase}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+    .btn{background:linear-gradient(135deg,var(--accent),#008F7A);border:none;border-radius:8px;color:#000;font-family:inherit;font-size:13px;font-weight:700;padding:9px 20px;cursor:pointer}
+    .btn-sm{background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-family:inherit;font-size:12px;padding:6px 12px;cursor:pointer}
+    .header{border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#0B101F,var(--bg));position:sticky;top:0;z-index:100}
+    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#008F7A);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#000}
+    .nav{display:flex;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;position:sticky;top:69px;z-index:99}
+    .nav button{flex:0 0 auto;padding:11px 13px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+    .nav button.active{border-bottom:2px solid var(--accent);color:var(--accent);font-weight:700}
+    .main{padding:24px 18px;max-width:900px;width:100%;margin:0 auto}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .pbar{height:6px;border-radius:99px;background:var(--border);overflow:hidden}
+    .pbar-fill{height:100%;border-radius:99px;transition:width .5s}
+    .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+    .chip{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700}
+    .cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+    .section{display:none}.section.active{display:block}
+    .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+    .stat-n{font-size:26px;font-weight:900;letter-spacing:-2px;line-height:1}
+    .stat-l{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+    .phase-btn{flex:1;padding:10px 6px;border-radius:10px;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;border:1px solid var(--border)}
+    .skill-btn{padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted)}
+    .skill-btn.active{border-color:var(--accent);background:#00D4B822;color:var(--accent);font-weight:700}
+    .score-btn{flex:1;height:34px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted)}
+    .action-row{border-bottom:1px solid var(--border);padding:13px 0;display:flex;gap:12px;align-items:flex-start}
+    .tag-green{background:#002E28;color:var(--accent)}
+    .tag-gold{background:#2A1F00;color:var(--gold)}
+    .tag-purple{background:#1E1040;color:var(--purple)}
+    .tag-muted{background:#141C2E;color:var(--muted)}
+    .form-card{border:1px solid #00D4B844;border-radius:16px;padding:20px;margin-bottom:14px;background:var(--card)}
+    .form-card.gold{border-color:#F5C51844}
+    .empty-state{text-align:center;padding:48px 20px;color:var(--muted);font-size:13px}
+    .empty-state .icon{font-size:36px;margin-bottom:10px}
+    .sub-card{background:var(--surface);border-radius:8px;padding:8px 10px}
+    .sub-card-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+    .close-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0}
+    .notes-toggle{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:3px 0 0;font-family:inherit}
+    .avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+    @media(max-width:480px){.grid3{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo">V</div>
+    <div>
+      <div style="font-size:16px;font-weight:800;letter-spacing:-.5px">VP Tracker</div>
+      <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Visa International</div>
+    </div>
+  </div>
+  <div id="header-chip"></div>
+</div>
+
+<div class="nav" id="nav"></div>
+
+<div class="main">
+  <div id="dashboard" class="section active"></div>
+  <div id="skills" class="section"></div>
+  <div id="actions" class="section"></div>
+  <div id="visibility" class="section"></div>
+  <div id="feedback" class="section"></div>
+  <div id="stakeholders" class="section"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const PM = {
+  1:{color:'#00D4B8',bg:'#00D4B811',label:'Director',sub:'Nivel actual',icon:'◈'},
+  2:{color:'#F5C518',bg:'#F5C51811',label:'Sr. Director',sub:'Próxima etapa',icon:'◆'},
+  3:{color:'#8B5CF6',bg:'#8B5CF611',label:'Vice President',sub:'Objetivo final',icon:'★'}
+};
+const SKILLS=[
+  {id:'financial',label:'P&L & Finanzas',icon:'💰',phases:{
+    1:{goal:'Entender y defender el P&L de tu área',b:['Construir P&L desde cero para tu vertical','Modelar escenarios de crecimiento','Identificar palancas que mueven el revenue']},
+    2:{goal:'Ownerear un P&L completo con accountability',b:['Presentar P&L ante liderazgo con confianza','Tomar decisiones basadas en métricas financieras','Gestionar trade-offs inversión vs. retorno']},
+    3:{goal:'Gestionar portafolio de P&Ls estratégicos',b:['Definir qué apuestas merecen inversión','Conectar P&L con estrategia global de Visa','Defender presupuestos ante C-suite']}
+  }},
+  {id:'bizdev',label:'Business Dev.',icon:'🏗️',phases:{
+    1:{goal:'Desarrollar business cases para nuevos segmentos',b:['Dimensionar TAM y revenue potential','Construir go-to-market para nuevos segmentos','Liderar una iniciativa de nuevo segmento']},
+    2:{goal:'Convertir oportunidades en negocio real',b:['Cerrar deals de alto impacto de forma independiente','Gestionar pipeline con métricas de conversión','Representar a Visa ante clientes estratégicos']},
+    3:{goal:'Definir la agenda de crecimiento de tu vertical',b:['Identificar oportunidades antes que el mercado','Construir ecosistemas de partnerships','Influir en estrategia global desde tu región']}
+  }},
+  {id:'leadership',label:'Liderazgo',icon:'🧭',phases:{
+    1:{goal:'Liderar proyectos cross-funcionales',b:['Tomar ownership sin autoridad formal','Coaching a colegas y juniors','Gestionar stakeholders internos complejos']},
+    2:{goal:'Construir un equipo de alto desempeño',b:['Reclutar y retener talento senior','Crear cultura de accountability','Delegar con confianza y seguimiento']},
+    3:{goal:'Desarrollar líderes que desarrollen a otros',b:['Construir bench de talento para roles clave','Ser reconocido como desarrollador de talento','Crear cultura de innovación en tu vertical']}
+  }},
+  {id:'executive',label:'Presencia Ejecutiva',icon:'🎙️',phases:{
+    1:{goal:'Comunicar con claridad ante liderazgo',b:['Dominar Situación→Complicación→Recomendación','Hacer una intervención memorable por QBR','Eliminar lenguaje de estamos trabajando en']},
+    2:{goal:'Enmarcar la agenda, no solo reportar',b:['Presentar en foros de liderazgo regional y global','Moldear la narrativa de tu vertical ante C-suite','Ser referente de criterio en tu área']},
+    3:{goal:'Definir visión y generar convicción a escala',b:['Inspirar a equipos grandes con visión clara','Representar a Visa externamente con autoridad','Influir en decisiones globales']}
+  }},
+  {id:'network',label:'Red & Capital Org.',icon:'🤝',phases:{
+    1:{goal:'Construir relaciones con liderazgo senior',b:['Mapear los 5 líderes que necesitan conocerte','Conseguir un sponsor activo','Generar valor para stakeholders antes de pedir']},
+    2:{goal:'Tener influencia más allá de tu área',b:['Ser convocado a iniciativas cross-área de alto perfil','Tener aliados en 3+ regiones de Visa','Ser recomendado espontáneamente por pares']},
+    3:{goal:'Capital organizacional que trasciende geografías',b:['Ser consultado por otros VPs en tu expertise','Influir en la agenda de talento y promociones','Construir reputación externa en la industria']}
+  }}
+];
+const INIT_ACTIONS=[
+  {id:1,phase:1,week:'Sem 1-2',text:"Conversación con mentor: ¿Qué necesito demostrar para ser VP?",done:false,notes:''},
+  {id:2,phase:1,week:'Sem 3-4',text:'Mapear 3-5 VPs/SVPs clave e identificar cómo generarles valor',done:false,notes:''},
+  {id:3,phase:1,week:'Sem 5-6',text:'Primera intervención memorable en foro ejecutivo',done:false,notes:''},
+  {id:4,phase:1,week:'Sem 7-8',text:'Publicar primer contenido de posicionamiento en LinkedIn',done:false,notes:''},
+  {id:5,phase:1,week:'Sem 9-10',text:'Primer acercamiento con sponsor potencial ofreciendo valor',done:false,notes:''},
+  {id:6,phase:1,week:'Sem 11-12',text:'Revisar relaciones construidas y ajustar estrategia',done:false,notes:''},
+  {id:7,phase:2,week:'M4-6',text:'Ownerear un P&L completo con presentación ante liderazgo',done:false,notes:''},
+  {id:8,phase:2,week:'M4-6',text:'Liderar iniciativa cross-funcional de alto perfil',done:false,notes:''},
+  {id:9,phase:2,week:'M7-9',text:'Presentar en foro de liderazgo regional o global',done:false,notes:''},
+  {id:10,phase:2,week:'M10-12',text:'Cerrar un deal o lanzar un segmento de forma independiente',done:false,notes:''},
+  {id:11,phase:3,week:'Año 2',text:'Ser reconocido como referente de tu vertical en LatAm',done:false,notes:''},
+  {id:12,phase:3,week:'Año 2',text:'Tener bench de talento desarrollado en tu equipo',done:false,notes:''},
+  {id:13,phase:3,week:'Año 3',text:'Participar en decisiones de agenda estratégica global de Visa',done:false,notes:''},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────
+function load(){
+  try{const s=localStorage.getItem('vp4');return s?JSON.parse(s):null}catch{return null}
+}
+function save(d){try{localStorage.setItem('vp4',JSON.stringify(d))}catch{}}
+
+let STATE=load()||{
+  currentPhase:1,
+  skills:SKILLS.reduce((a,s)=>{a[s.id]={p1:0,p2:0,p3:0,notes:''};return a},{}),
+  actions:INIT_ACTIONS,
+  visibilityLog:[],
+  feedbackLog:[],
+  stakeholders:[]
+};
+function setState(fn){STATE=fn(STATE);save(STATE);render()}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function pct(done,total){return total?Math.round(done/total*100):0}
+function phaseActions(ph){const a=STATE.actions.filter(x=>x.phase===ph);const d=a.filter(x=>x.done).length;return{total:a.length,done:d,p:pct(d,a.length)}}
+function chip(phase,size){
+  const m=PM[phase];const p=size==='lg'?'5px 14px':'2px 10px';const f=size==='lg'?13:11;
+  return `<span class="chip" style="background:${m.bg};color:${m.color};border:1px solid ${m.color}33;padding:${p};font-size:${f}px">${m.icon} ${m.label}</span>`;
+}
+function pill(color,text){
+  const map={green:'tag-green',gold:'tag-gold',purple:'tag-purple',muted:'tag-muted'};
+  return `<span class="pill ${map[color]||'tag-muted'}">${text}</span>`;
+}
+function pbar(val,color,h){
+  h=h||6;
+  return `<div class="pbar" style="height:${h}px"><div class="pbar-fill" style="width:${Math.min(100,val||0)}%;background:${color}"></div></div>`;
+}
+function cb(checked,color,onclick){
+  const bg=checked?(color||'var(--accent)'):'transparent';
+  const bc=checked?(color||'var(--accent)'):'var(--border)';
+  return `<div class="cb" style="background:${bg};border-color:${bc}" onclick="${onclick}">${checked?'<span style="color:#000;font-size:11px;font-weight:900">✓</span>':''}</div>`;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ── NAV ───────────────────────────────────────────────────────────
+const TABS=[
+  {id:'dashboard',label:'Dashboard',icon:'◈'},
+  {id:'skills',label:'Skills',icon:'◆'},
+  {id:'actions',label:'Acciones',icon:'✓'},
+  {id:'visibility',label:'Visibilidad',icon:'🎙'},
+  {id:'feedback',label:'Feedback',icon:'💬'},
+  {id:'stakeholders',label:'Red',icon:'🗺'},
+];
+let currentTab='dashboard';
+function setTab(id){
+  currentTab=id;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function render(){
+  renderHeader();
+  if(currentTab==='dashboard') renderDashboard();
+  else if(currentTab==='skills') renderSkills();
+  else if(currentTab==='actions') renderActions();
+  else if(currentTab==='visibility') renderVisibility();
+  else if(currentTab==='feedback') renderFeedback();
+  else if(currentTab==='stakeholders') renderStakeholders();
+}
+
+function renderHeader(){
+  const m=PM[STATE.currentPhase];
+  document.getElementById('header-chip').innerHTML=`<span class="chip" style="background:${m.bg};color:${m.color};border:1px solid ${m.color}33;padding:5px 14px;font-size:13px">${m.icon} ${m.label}</span>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+function renderDashboard(){
+  const done=STATE.actions.filter(a=>a.done).length;
+  const total=STATE.actions.length;
+  let phases='';
+  for(let ph=1;ph<=3;ph++){
+    const m=PM[ph];const pa=phaseActions(ph);const cur=STATE.currentPhase===ph;
+    phases+=`<div class="card" style="margin:0;border:1px solid ${cur?m.color+'55':'var(--border)'};background:${cur?`linear-gradient(135deg,${m.bg},var(--card))`:'var(--card)'};position:relative">
+      ${cur?`<div style="position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;color:${m.color};letter-spacing:1px">ACTUAL</div>`:''}
+      <div style="font-size:20px;margin-bottom:6px">${m.icon}</div>
+      <div style="font-size:13px;font-weight:800;color:${m.color};margin-bottom:2px">${m.label}</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:10px">${m.sub}</div>
+      ${pbar(pa.p,m.color)}
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">${pa.done}/${pa.total}</div>
+    </div>`;
+  }
+  const stats=[
+    {n:done,total,label:'Acciones completadas',color:'var(--accent)'},
+    {n:(STATE.visibilityLog||[]).length,label:'Momentos visibilidad',color:'var(--purple)'},
+    {n:(STATE.stakeholders||[]).filter(s=>s.name).length,label:'Stakeholders mapeados',color:'var(--gold)'},
+    {n:(STATE.feedbackLog||[]).length,label:'Feedbacks recibidos',color:'var(--mutedL)'},
+  ];
+  let statsHtml=stats.map(s=>`<div class="stat-box">
+    <div class="stat-n" style="color:${s.color}">${s.n}${s.total?`<span style="font-size:12px;color:var(--muted);font-weight:400">/${s.total}</span>`:''}</div>
+    <div class="stat-l">${s.label}</div>
+  </div>`).join('');
+  let phaseBtns=[1,2,3].map(ph=>{
+    const m=PM[ph];const a=STATE.currentPhase===ph;
+    return `<button class="phase-btn" style="background:${a?m.bg:'transparent'};color:${a?m.color:'var(--muted)'};border-color:${a?m.color:'var(--border)'}" onclick="setCurrentPhase(${ph})">${m.icon}<br>${m.label}</button>`;
+  }).join('');
+  document.getElementById('dashboard').innerHTML=`
+    <div style="margin-bottom:24px">
+      <div style="font-size:24px;font-weight:900;letter-spacing:-1.5px;line-height:1.1;margin-bottom:6px">Tu camino a <span style="color:var(--purple)">VP</span> en Visa</div>
+      <div style="color:var(--muted);font-size:13px">Director · Sr. Director · Vice President</div>
+    </div>
+    <div class="grid3" style="margin-bottom:18px">${phases}</div>
+    <div class="grid2" style="margin-bottom:18px">${statsHtml}</div>
+    <div class="card">
+      <div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Fase actual</div>
+      <div style="display:flex;gap:8px">${phaseBtns}</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <div style="font-size:13px;font-style:italic;color:var(--text);line-height:1.7">"La visibilidad no es sobre aparecer más. Es sobre ser recordado por algo específico cada vez que apareces."</div>
+    </div>`;
+}
+function setCurrentPhase(ph){setState(d=>({...d,currentPhase:ph}))}
+
+// ── SKILLS ────────────────────────────────────────────────────────
+let activeSkill=SKILLS[0].id;
+function renderSkills(){
+  const sk=SKILLS.find(s=>s.id===activeSkill);
+  const sd=STATE.skills[activeSkill]||{p1:0,p2:0,p3:0,notes:''};
+  const tabs=SKILLS.map(s=>`<button class="skill-btn${activeSkill===s.id?' active':''}" onclick="setSkill('${s.id}')">${s.icon} ${s.label}</button>`).join('');
+  let phases='';
+  for(let ph=1;ph<=3;ph++){
+    const m=PM[ph];const pi=sk.phases[ph];const key=`p${ph}`;const score=sd[key]||0;
+    const behaviors=pi.b.map(b=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border)">
+      <div style="width:5px;height:5px;border-radius:50%;background:${m.color};flex-shrink:0;margin-top:7px"></div>
+      <div style="font-size:12px;color:var(--mutedL);line-height:1.5">${b}</div>
+    </div>`).join('');
+    const scores=[0,1,2,3,4,5].map(n=>`<button class="score-btn" style="border-color:${score>=n&&n>0?m.color:'var(--border)'};background:${score>=n&&n>0?m.bg:'transparent'};color:${score>=n&&n>0?m.color:'var(--muted)'}" onclick="setScore('${activeSkill}','${key}',${n})">${n}</button>`).join('');
+    phases+=`<div class="card" style="border-left:3px solid ${m.color}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>${chip(ph,'lg')}<div style="font-size:13px;font-weight:600;margin-top:8px;color:var(--text)">${pi.goal}</div></div>
+        <div style="font-size:24px;font-weight:900;color:${m.color};letter-spacing:-1px;line-height:1;flex-shrink:0;margin-left:12px">${score}<span style="font-size:11px;color:var(--muted)">/5</span></div>
+      </div>
+      <div style="margin-bottom:12px">${behaviors}</div>
+      <div style="display:flex;gap:6px">${scores}</div>
+    </div>`;
+  }
+  document.getElementById('skills').innerHTML=`
+    <div style="margin-bottom:18px">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Skills por Etapa</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Autoevalúa tu nivel en cada competencia</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">${tabs}</div>
+    ${phases}
+    <div class="card">
+      <label class="lbl">Notas sobre este skill</label>
+      <textarea oninput="setSkillNotes('${activeSkill}',this.value)" placeholder="Reflexiones, feedback recibido, oportunidades de práctica...">${esc(sd.notes||'')}</textarea>
+    </div>`;
+}
+function setSkill(id){activeSkill=id;renderSkills()}
+function setScore(skillId,key,n){setState(d=>({...d,skills:{...d.skills,[skillId]:{...d.skills[skillId],[key]:n}}}))}
+function setSkillNotes(skillId,v){STATE.skills[skillId].notes=v;save(STATE)}
+
+// ── ACTIONS ───────────────────────────────────────────────────────
+let filterPhase=1;
+let expandedAction=null;
+function renderActions(){
+  filterPhase=filterPhase||STATE.currentPhase||1;
+  const fil=STATE.actions.filter(a=>a.phase===filterPhase);
+  const done=fil.filter(a=>a.done).length;
+  const m=PM[filterPhase];
+  const tabs=[1,2,3].map(ph=>{
+    const pm=PM[ph];const pa=STATE.actions.filter(a=>a.phase===ph);const pd=pa.filter(a=>a.done).length;
+    return `<button class="phase-btn" style="background:${filterPhase===ph?pm.bg:'transparent'};color:${filterPhase===ph?pm.color:'var(--muted)'};border-color:${filterPhase===ph?pm.color:'var(--border)'}" onclick="setFilterPhase(${ph})">${pm.icon} ${pm.label}<div style="font-size:10px;margin-top:2px;opacity:.7">${pd}/${pa.length}</div></button>`;
+  }).join('');
+  const rows=fil.map(a=>{
+    const tc=filterPhase===1?'green':filterPhase===2?'gold':'purple';
+    const notesHtml=expandedAction===a.id?`<textarea oninput="setActionNote(${a.id},this.value)" placeholder="Resultados, reflexiones, próximos pasos..." style="margin-top:8px">${esc(a.notes)}</textarea>`:'';
+    return `<div class="action-row">
+      ${cb(a.done,m.color,`toggleAction(${a.id})`)}
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+          <div style="font-size:13px;color:${a.done?'var(--muted)':'var(--text)'};text-decoration:${a.done?'line-through':'none'};line-height:1.45">${esc(a.text)}</div>
+          ${pill(tc,a.week)}
+        </div>
+        <button class="notes-toggle" onclick="toggleActionExpand(${a.id})">${expandedAction===a.id?'▲ ocultar':'▼ notas'}</button>
+        ${notesHtml}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('actions').innerHTML=`
+    <div style="margin-bottom:18px">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Acciones por Fase</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Cada acción te acerca al siguiente nivel</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">${tabs}</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600">${done}/${fil.length} completadas</span>
+        <span style="font-size:13px;color:${m.color};font-weight:700">${pct(done,fil.length)}%</span>
+      </div>
+      ${pbar(pct(done,fil.length),m.color,8)}
+    </div>
+    <div class="card">${rows}</div>`;
+}
+function setFilterPhase(ph){filterPhase=ph;expandedAction=null;renderActions()}
+function toggleAction(id){setState(d=>({...d,actions:d.actions.map(a=>a.id===id?{...a,done:!a.done}:a)}))}
+function toggleActionExpand(id){expandedAction=expandedAction===id?null:id;renderActions()}
+function setActionNote(id,v){const a=STATE.actions.find(x=>x.id===id);if(a){a.notes=v;save(STATE)}}
+
+// ── VISIBILITY ────────────────────────────────────────────────────
+let showVisForm=false;
+function renderVisibility(){
+  const log=STATE.visibilityLog||[];
+  const formHtml=showVisForm?`
+    <div class="form-card">
+      <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px">Nuevo momento de visibilidad</div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="lbl">Fecha</label><input type="date" id="v-date"/></div>
+        <div><label class="lbl">Foro / Contexto</label><input id="v-forum" placeholder="Ej: QBR, All-Hands..."/></div>
+      </div>
+      <div style="margin-bottom:10px"><label class="lbl">Fase</label><select id="v-phase">${[1,2,3].map(ph=>`<option value="${ph}">${PM[ph].label}</option>`).join('')}</select></div>
+      <div style="margin-bottom:10px"><label class="lbl">¿Qué hice / dije?</label><textarea id="v-what" placeholder="Describe tu intervención..."></textarea></div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div><label class="lbl">Impacto percibido</label><textarea id="v-impact" placeholder="¿Cómo reaccionó el liderazgo?" style="min-height:52px"></textarea></div>
+        <div><label class="lbl">Próximo paso</label><textarea id="v-next" placeholder="¿Qué harás después?" style="min-height:52px"></textarea></div>
+      </div>
+      <div style="display:flex;gap:10px"><button class="btn" onclick="saveVisibility()">Guardar</button><button class="btn-sm" onclick="toggleVisForm()">Cancelar</button></div>
+    </div>`:'';
+  const items=log.map(v=>{
+    const m=PM[v.phase]||PM[1];
+    return `<div class="card" style="border-left:3px solid ${m.color}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${chip(v.phase)}${v.forum?pill('muted',esc(v.forum)):''}${v.date?`<span style="font-size:11px;color:var(--muted)">${v.date}</span>`:''}</div>
+        <button class="close-btn" onclick="removeVis(${v.id})">×</button>
+      </div>
+      <div style="font-size:13px;color:var(--text);line-height:1.55;margin-bottom:${v.impact||v.nextStep?10:0}px">${esc(v.what)}</div>
+      ${v.impact||v.nextStep?`<div class="grid2">
+        ${v.impact?`<div class="sub-card"><div class="sub-card-label">Impacto</div><div style="font-size:12px;color:var(--mutedL)">${esc(v.impact)}</div></div>`:''}
+        ${v.nextStep?`<div class="sub-card"><div class="sub-card-label">Próximo paso</div><div style="font-size:12px;color:var(--mutedL)">${esc(v.nextStep)}</div></div>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('visibility').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Momentos de Visibilidad</div><div style="color:var(--muted);font-size:13px;margin-top:4px">Cada presentación ante liderazgo senior</div></div>
+      <button class="btn" onclick="toggleVisForm()">+ Nuevo</button>
+    </div>
+    ${formHtml}
+    ${log.length===0&&!showVisForm?`<div class="card empty-state"><div class="icon">🎙️</div>Aún sin momentos registrados.<br>Cada intervención ejecutiva cuenta.</div>`:''}
+    ${items}`;
+}
+function toggleVisForm(){showVisForm=!showVisForm;renderVisibility()}
+function saveVisibility(){
+  const what=document.getElementById('v-what').value.trim();
+  if(!what)return;
+  const entry={id:Date.now(),date:document.getElementById('v-date').value,forum:document.getElementById('v-forum').value,phase:Number(document.getElementById('v-phase').value),what,impact:document.getElementById('v-impact').value,nextStep:document.getElementById('v-next').value};
+  setState(d=>({...d,visibilityLog:[entry,...(d.visibilityLog||[])]}));
+  showVisForm=false;
+}
+function removeVis(id){setState(d=>({...d,visibilityLog:d.visibilityLog.filter(v=>v.id!==id)}))}
+
+// ── FEEDBACK ──────────────────────────────────────────────────────
+let showFbForm=false;
+function renderFeedback(){
+  const log=STATE.feedbackLog||[];
+  const tc={positivo:'tag-green',desarrollo:'tag-gold',critico:'tag-purple'};
+  const tl={positivo:'✦ Positivo',desarrollo:'◈ Desarrollo',critico:'▲ Crítico'};
+  const formHtml=showFbForm?`
+    <div class="form-card gold">
+      <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px">Registrar feedback</div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="lbl">Fecha</label><input type="date" id="f-date"/></div>
+        <div><label class="lbl">Quién lo dio</label><input id="f-from" placeholder="Nombre"/></div>
+      </div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="lbl">Fase</label><select id="f-phase">${[1,2,3].map(ph=>`<option value="${ph}">${PM[ph].label}</option>`).join('')}</select></div>
+        <div><label class="lbl">Tipo</label><select id="f-type"><option value="positivo">Positivo</option><option value="desarrollo">Desarrollo</option><option value="critico">Crítico</option></select></div>
+      </div>
+      <div style="margin-bottom:10px"><label class="lbl">Contenido del feedback</label><textarea id="f-content" placeholder="¿Qué te dijeron exactamente?"></textarea></div>
+      <div style="margin-bottom:14px"><label class="lbl">¿Qué voy a hacer con esto?</label><textarea id="f-action" placeholder="Acción concreta..." style="min-height:52px"></textarea></div>
+      <div style="display:flex;gap:10px"><button class="btn" onclick="saveFeedback()">Guardar</button><button class="btn-sm" onclick="toggleFbForm()">Cancelar</button></div>
+    </div>`:'';
+  const items=log.map(fb=>{
+    const m=PM[fb.phase]||PM[1];
+    return `<div class="card" style="border-left:3px solid ${m.color}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${chip(fb.phase)}<span class="pill ${tc[fb.type]||'tag-muted'}">${tl[fb.type]||fb.type}</span>${fb.from?`<span style="font-size:12px;font-weight:600">${esc(fb.from)}</span>`:''}${fb.date?`<span style="font-size:11px;color:var(--muted)">${fb.date}</span>`:''}</div>
+        <button class="close-btn" onclick="removeFb(${fb.id})">×</button>
+      </div>
+      <div style="font-size:13px;color:var(--text);line-height:1.55;margin-bottom:${fb.action?10:0}px">${esc(fb.content)}</div>
+      ${fb.action?`<div class="sub-card"><div class="sub-card-label">Mi acción</div><div style="font-size:12px;color:var(--mutedL)">${esc(fb.action)}</div></div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('feedback').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Feedback del Liderazgo</div><div style="color:var(--muted);font-size:13px;margin-top:4px">Lo que el liderazgo senior te dice</div></div>
+      <button class="btn" onclick="toggleFbForm()">+ Agregar</button>
+    </div>
+    ${formHtml}
+    ${log.length===0&&!showFbForm?`<div class="card empty-state"><div class="icon">💬</div>Sin feedback registrado.<br>Cada comentario del liderazgo son datos.</div>`:''}
+    ${items}`;
+}
+function toggleFbForm(){showFbForm=!showFbForm;renderFeedback()}
+function saveFeedback(){
+  const content=document.getElementById('f-content').value.trim();
+  if(!content)return;
+  const entry={id:Date.now(),date:document.getElementById('f-date').value,from:document.getElementById('f-from').value,phase:Number(document.getElementById('f-phase').value),type:document.getElementById('f-type').value,content,action:document.getElementById('f-action').value};
+  setState(d=>({...d,feedbackLog:[entry,...(d.feedbackLog||[])]}));
+  showFbForm=false;
+}
+function removeFb(id){setState(d=>({...d,feedbackLog:d.feedbackLog.filter(f=>f.id!==id)}))}
+
+// ── STAKEHOLDERS ──────────────────────────────────────────────────
+function renderStakeholders(){
+  const sk=STATE.stakeholders||[];
+  const items=sk.map((s,i)=>{
+    const m=PM[s.phase||1];
+    return `<div class="card" style="border-left:3px solid ${m.color}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="avatar" style="background:${m.bg};border:1px solid ${m.color}44;color:${m.color}">${s.name?s.name[0].toUpperCase():i+1}</div>
+          <div><div style="font-weight:700;font-size:14px">${esc(s.name)||'Stakeholder '+(i+1)}</div><div style="font-size:11px;color:var(--muted)">${esc(s.title||'')}</div></div>
+        </div>
+        <button class="close-btn" onclick="removeSt(${s.id})">×</button>
+      </div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="lbl">Nombre</label><input value="${esc(s.name||'')}" oninput="updateSt(${s.id},'name',this.value)" placeholder="Nombre completo"/></div>
+        <div><label class="lbl">Título / Rol</label><input value="${esc(s.title||'')}" oninput="updateSt(${s.id},'title',this.value)" placeholder="Ej: SVP Strategy"/></div>
+      </div>
+      <div class="grid3" style="margin-bottom:10px">
+        <div><label class="lbl">¿Qué sabe de mí?</label><textarea oninput="updateSt(${s.id},'knowsMe',this.value)" placeholder="Percepción actual..." style="min-height:52px">${esc(s.knowsMe||'')}</textarea></div>
+        <div><label class="lbl">¿Qué quiero que sepa?</label><textarea oninput="updateSt(${s.id},'wantToKnow',this.value)" placeholder="Percepción objetivo..." style="min-height:52px">${esc(s.wantToKnow||'')}</textarea></div>
+        <div><label class="lbl">¿Cómo le genero valor?</label><textarea oninput="updateSt(${s.id},'valueToGive',this.value)" placeholder="Acción concreta..." style="min-height:52px">${esc(s.valueToGive||'')}</textarea></div>
+      </div>
+      <div class="grid2">
+        <div><label class="lbl">Último contacto</label><input type="date" value="${esc(s.lastContact||'')}" oninput="updateSt(${s.id},'lastContact',this.value)"/></div>
+        <div><label class="lbl">Fase relevante</label><select onchange="updateSt(${s.id},'phase',Number(this.value))">${[1,2,3].map(ph=>`<option value="${ph}"${(s.phase||1)===ph?' selected':''}>${PM[ph].label}</option>`).join('')}</select></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('stakeholders').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Mapa de Stakeholders</div><div style="color:var(--muted);font-size:13px;margin-top:4px">Los líderes que necesitan conocerte mejor</div></div>
+      <button class="btn" onclick="addSt()">+ Agregar</button>
+    </div>
+    ${sk.length===0?`<div class="card empty-state"><div class="icon">🗺️</div>Empieza mapeando los 3-5 líderes clave.<br>Es tu acción más importante esta semana.</div>`:''}
+    ${items}`;
+}
+function addSt(){setState(d=>({...d,stakeholders:[...(d.stakeholders||[]),{id:Date.now(),name:'',title:'',phase:1,knowsMe:'',wantToKnow:'',valueToGive:'',lastContact:''}]}))}
+function updateSt(id,f,v){const s=STATE.stakeholders.find(x=>x.id===id);if(s){s[f]=v;save(STATE)}}
+function removeSt(id){setState(d=>({...d,stakeholders:d.stakeholders.filter(s=>s.id!==id)}))}
+
+// ── INIT ──────────────────────────────────────────────────────────
+const nav=document.getElementById('nav');
+TABS.forEach(t=>{
+  const b=document.createElement('button');
+  b.dataset.tab=t.id;
+  b.textContent=t.icon+' '+t.label;
+  b.onclick=()=>setTab(t.id);
+  if(t.id==='dashboard')b.classList.add('active');
+  nav.appendChild(b);
+});
+render();
+</script>
+</body>
+</html>
